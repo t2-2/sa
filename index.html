@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>מנהל מעלית שבת</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#eef2f9;--navy:#0f2d5c;--blue:#1c5bc9;--text:#1b2433;--muted:#667388;--line:#dbe3f0;--green:#15803d;--red:#b3261e;--amber:#8a5a00}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Hebrew","Arial Hebrew",Arial,sans-serif;font-size:16px;line-height:1.5;direction:rtl;padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+.hero{background:linear-gradient(135deg,#0b244b,#1c5bc9);color:#fff;padding:calc(20px + env(safe-area-inset-top,0px)) 18px 26px;border-radius:0 0 28px 28px;box-shadow:0 8px 24px rgba(15,45,92,.25)}
+.hero-in{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.logo{flex:none;width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.16);display:grid;place-items:center}
+.logo svg{width:34px;height:34px}
+h1{margin:0;font-size:1.5rem;line-height:1.15;font-weight:800}
+.hero p{margin:3px 0 0;opacity:.85;font-size:.92rem}
+main{max-width:680px;margin:0 auto;padding:16px 14px 0}
+h2{margin:0 0 10px;font-size:1.05rem;color:var(--navy)}
+.card{background:#fff;border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(15,45,92,.07)}
+.notice{border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:.95rem}
+.notice.warn{background:#fff4d6;color:var(--amber)}
+.notice.err{background:#fde8e6;color:var(--red)}
+.notice.info{background:#e3edff;color:var(--navy)}
+.notice ul{margin:6px 0 0;padding-inline-start:20px}
+.notice[hidden]{display:none}
+.ev-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.num{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.9rem}
+.ev-title{font-weight:700;color:var(--navy)}
+.lbl{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin:0 0 6px;padding:0}
+.sec{margin-bottom:14px;border:0;padding:0;min-width:0}
+.days{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.opt{position:relative}
+.opt input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;width:100%;height:100%}
+.opt span{display:flex;align-items:center;justify-content:center;min-height:48px;padding:8px 6px;border:1.5px solid var(--line);border-radius:12px;background:#f7f9fd;font-weight:600;color:var(--navy);pointer-events:none}
+.opt input:checked+span{background:var(--blue);border-color:var(--blue);color:#fff}
+.opt input:focus-visible+span{outline:3px solid #7aa7ff;outline-offset:2px}
+.times{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input[type=time]{width:100%;min-height:56px;font:inherit;font-size:1.6rem;font-weight:700;text-align:center;color:var(--navy);background:#f7f9fd;border:1.5px solid var(--line);border-radius:14px;direction:ltr}
+input[type=time]:focus-visible{outline:3px solid #7aa7ff;outline-offset:2px}
+.hint{font-size:.85rem;color:var(--amber);margin:-6px 0 12px;min-height:0}
+.row{display:flex;gap:8px;margin-top:4px}
+button{font:inherit;min-height:48px;padding:10px 16px;border-radius:14px;border:0;background:#eaf0fb;color:var(--navy);cursor:pointer;font-weight:700}
+button:focus-visible{outline:3px solid #7aa7ff;outline-offset:2px}
+button.small{flex:1}
+button.danger{background:#fdeceb;color:var(--red)}
+button.add{width:100%;min-height:56px;background:#fff;color:var(--blue);border:2px dashed #9db9ea;font-size:1.05rem}
+button.primary{width:100%;min-height:58px;background:linear-gradient(135deg,#1c5bc9,#0f2d5c);color:#fff;font-size:1.1rem;box-shadow:0 6px 16px rgba(28,91,201,.35)}
+button:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.link{display:block;margin:10px auto 0;background:none;min-height:40px;color:var(--red);font-weight:600}
+.link[hidden]{display:none}
+.empty{text-align:center;color:var(--muted);padding:26px 16px}
+#summary{margin:0;padding:0;list-style:none}
+#summary li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+#summary li:last-child{border-bottom:0}
+#summary .d{font-weight:700;color:var(--navy)}
+#summary .a{color:var(--muted);font-size:.9rem}
+#summary .t{direction:ltr;background:var(--blue);color:#fff;border-radius:10px;padding:3px 12px;font-weight:700;white-space:nowrap}
+#summary li.bad .t{background:#d9dee8;color:var(--red)}
+.confirm{display:flex;gap:12px;align-items:center;margin:4px 0 14px;padding:14px;background:#fff;border-radius:16px;box-shadow:0 2px 10px rgba(15,45,92,.07)}
+.confirm input{width:26px;height:26px;flex:none;margin:0;accent-color:var(--blue)}
+.confirm label{font-weight:600;color:var(--navy)}
+#status{margin-top:12px;font-weight:600;text-align:center}
+#status.ok{color:var(--green)}
+#status.bad{color:var(--red)}
+@media(min-width:520px){.days{grid-template-columns:repeat(7,1fr)}}
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-in">
+  <div class="logo" aria-hidden="true">
+    <svg viewBox="0 0 48 48" fill="none"><rect x="8" y="5" width="32" height="38" rx="5" stroke="#fff" stroke-width="3"/><line x1="24" y1="5" x2="24" y2="43" stroke="#fff" stroke-width="3"/><path d="M15 20l3.5-5 3.5 5zM26 28l3.5 5 3.5-5z" fill="#fff"/></svg>
+  </div>
+  <div><h1>מנהל מעלית שבת</h1><p>בוחרים יום ושעות: מצב שבת מופעל ואז מכובה</p></div>
+</div></div>
+
+<main>
+  <div id="demo" class="notice info" hidden><strong>מצב הדגמה.</strong> האפליקציה לא נפתחה מתוך טלגרם, ולכן אי אפשר לשלוח לבוט. אפשר רק להוריד קובץ JSON לבדיקה.</div>
+
+  <section aria-label="אירועים"><div id="list"></div></section>
+  <button type="button" class="add" id="addBtn">+ הוספת שעה נוספת</button>
+  <button type="button" class="link" id="clearBtn" hidden>מחיקת כל האירועים</button>
+
+  <section class="card" style="margin-top:18px" aria-labelledby="sumTitle">
+    <h2 id="sumTitle">לוח הזמנים שנבחר:</h2>
+    <ul id="summary" aria-live="polite"></ul>
+  </section>
+
+  <div id="errBox" class="notice err" role="alert" hidden></div>
+  <div id="warnBox" class="notice warn" hidden></div>
+
+  <div class="confirm">
+    <input type="checkbox" id="confirmChk">
+    <label for="confirmChk">בדקתי את הסיכום ואני מאשר/ת שהוא נכון</label>
+  </div>
+  <button type="button" class="primary" id="sendBtn" disabled>שליחה לבוט</button>
+  <div id="status" role="status" aria-live="polite"></div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var DAYS = [
+    ['sunday', 'יום ראשון', 'ראשון'], ['monday', 'יום שני', 'שני'], ['tuesday', 'יום שלישי', 'שלישי'],
+    ['wednesday', 'יום רביעי', 'רביעי'], ['thursday', 'יום חמישי', 'חמישי'], ['friday', 'יום שישי', 'שישי'],
+    ['saturday', 'יום שבת', 'שבת']
+  ];
+  var MAX_BYTES = 4096; // מגבלת sendData
+  var WEEK = 7 * 1440;
+
+  var tg = window.Telegram && window.Telegram.WebApp;
+  var inTelegram = !!(tg && tg.initData);
+  var nextId = 1;
+  var events = [];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var listEl = $('list'), summaryEl = $('summary'), errBox = $('errBox'), warnBox = $('warnBox');
+  var sendBtn = $('sendBtn'), chk = $('confirmChk'), statusEl = $('status'), clearBtn = $('clearBtn');
+
+  function dayName(code) { for (var i = 0; i < DAYS.length; i++) if (DAYS[i][0] === code) return DAYS[i][1]; return code; }
+  function dayIndex(code) { for (var i = 0; i < DAYS.length; i++) if (DAYS[i][0] === code) return i; return 99; }
+  function mins(t) { var p = t.split(':'); return +p[0] * 60 + +p[1]; }
+  function el(tag, attrs, text) {
+    var n = document.createElement(tag);
+    if (attrs) for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function touch() { chk.checked = false; statusEl.textContent = ''; statusEl.className = ''; }
+  function complete(e) { return !!(e.start && e.end); }
+  function nextDay(e) { return complete(e) && mins(e.end) < mins(e.start); } // מסתיים למחרת
+
+  function sortedEvents() {
+    return events.slice().sort(function (a, b) {
+      var d = dayIndex(a.day) - dayIndex(b.day);
+      if (d) return d;
+      if (a.start === b.start) return 0;
+      if (!a.start) return 1;
+      if (!b.start) return -1;
+      return a.start < b.start ? -1 : 1;
+    });
+  }
+
+  function describe(e) {
+    if (!complete(e)) return dayName(e.day) + ' (חסרה שעה)';
+    return dayName(e.day) + ' — מצב שבת מ-' + e.start + ' עד ' + e.end + (nextDay(e) ? ' (למחרת)' : '');
+  }
+
+  function hintText(e) {
+    if (!complete(e)) return '';
+    if (mins(e.end) === mins(e.start)) return 'שעת הסיום זהה לשעת ההתחלה.';
+    if (nextDay(e)) return 'הסיום יהיה למחרת, ב-' + e.end + '.';
+    return '';
+  }
+
+  function radio(name, id, value, checked, text, onChange) {
+    var w = el('div', { 'class': 'opt' });
+    var i = el('input', { type: 'radio', name: name, id: id, value: value });
+    i.checked = checked;
+    i.addEventListener('change', function () { onChange(value); });
+    w.appendChild(i);
+    w.appendChild(el('span', null, text));
+    return w;
+  }
+
+  function timeField(id, text, value, onInput) {
+    var d = el('div');
+    d.appendChild(el('label', { 'class': 'lbl', 'for': id }, text));
+    var t = el('input', { type: 'time', id: id, required: 'required' });
+    t.value = value;
+    t.addEventListener('input', function () { onInput(t.value); });
+    d.appendChild(t);
+    return d;
+  }
+
+  function renderList() {
+    listEl.textContent = '';
+    if (!events.length) {
+      var e = el('div', { 'class': 'card empty' });
+      e.appendChild(el('div', null, 'עדיין לא הוספתם שעות.'));
+      e.appendChild(el('div', null, 'לחצו על "הוספת שעה נוספת" כדי להתחיל.'));
+      listEl.appendChild(e);
+    }
+    events.forEach(function (ev, i) {
+      var pre = 'ev' + ev.id;
+      var card = el('div', { 'class': 'card', role: 'group', 'aria-label': 'אירוע ' + (i + 1) });
+      var head = el('div', { 'class': 'ev-head' });
+      head.appendChild(el('span', { 'class': 'num' }, String(i + 1)));
+      head.appendChild(el('span', { 'class': 'ev-title' }, 'אירוע ' + (i + 1)));
+      card.appendChild(head);
+
+      var s1 = el('fieldset', { 'class': 'sec' });
+      s1.appendChild(el('legend', { 'class': 'lbl' }, 'יום'));
+      var days = el('div', { 'class': 'days' });
+      DAYS.forEach(function (d) {
+        days.appendChild(radio(pre + 'd', pre + 'd' + d[0], d[0], ev.day === d[0], d[2], function (v) { ev.day = v; touch(); update(); }));
+      });
+      s1.appendChild(days); card.appendChild(s1);
+
+      var hint = el('div', { 'class': 'hint', 'data-hint': '1' });
+      var times = el('div', { 'class': 'times sec' });
+      times.appendChild(timeField(pre + 's', 'משעה', ev.start, function (v) { ev.start = v; touch(); update(); }));
+      times.appendChild(timeField(pre + 'e', 'עד שעה', ev.end, function (v) { ev.end = v; touch(); update(); }));
+      card.appendChild(times);
+      hint.setAttribute('id', pre + 'h');
+      card.appendChild(hint);
+
+      var row = el('div', { 'class': 'row' });
+      var dup = el('button', { type: 'button', 'class': 'small', 'aria-label': 'העתקת אירוע ' + (i + 1) }, 'העתקה');
+      dup.addEventListener('click', function () {
+        events.splice(i + 1, 0, { id: nextId++, day: ev.day, start: ev.start, end: ev.end });
+        touch(); renderList(); update();
+      });
+      var del = el('button', { type: 'button', 'class': 'small danger', 'aria-label': 'הסרת אירוע ' + (i + 1) }, 'הסרה');
+      del.addEventListener('click', function () { events.splice(i, 1); touch(); renderList(); update(); });
+      row.appendChild(dup); row.appendChild(del); card.appendChild(row);
+      listEl.appendChild(card);
+    });
+  }
+
+  function validate() {
+    var errors = [], warnings = [];
+    var missing = events.filter(function (e) { return !complete(e); }).length;
+    if (missing) errors.push('חסרה שעת התחלה או סיום ב-' + missing + (missing === 1 ? ' אירוע.' : ' אירועים.'));
+    var same = events.filter(function (e) { return complete(e) && e.start === e.end; }).length;
+    if (same) errors.push('שעת הסיום זהה לשעת ההתחלה ב-' + same + (same === 1 ? ' אירוע.' : ' אירועים.'));
+
+    var ok = sortedEvents().filter(function (e) { return complete(e) && e.start !== e.end; });
+    ok.forEach(function (e) {
+      var s = dayIndex(e.day) * 1440 + mins(e.start);
+      var len = mins(e.end) > mins(e.start) ? mins(e.end) - mins(e.start) : 1440 - mins(e.start) + mins(e.end);
+      e._s = s; e._e = s + len;
+    });
+    var nd = ok.filter(nextDay);
+    if (nd.length) warnings.push('יש ' + (nd.length === 1 ? 'אירוע שמסתיים' : nd.length + ' אירועים שמסתיימים') + ' למחרת (שעת הסיום מוקדמת משעת ההתחלה). ודאו שזה מכוון.');
+    for (var i = 0; i < ok.length; i++) for (var j = i + 1; j < ok.length; j++) {
+      var a = ok[i], b = ok[j], hit = false;
+      [-WEEK, 0, WEEK].forEach(function (off) { if (a._s < b._e + off && b._s + off < a._e) hit = true; });
+      if (!hit) continue;
+      if (a.day === b.day && a.start === b.start && a.end === b.end) warnings.push('אירוע כפול: ' + describe(a));
+      else warnings.push('חפיפה בין "' + describe(a) + '" לבין "' + describe(b) + '".');
+    }
+    return { errors: errors, warnings: warnings, empty: !events.length };
+  }
+
+  function fillBox(box, items) {
+    box.textContent = '';
+    if (!items.length) { box.hidden = true; return; }
+    var ul = el('ul');
+    items.forEach(function (m) { ul.appendChild(el('li', null, m)); });
+    box.appendChild(ul);
+    box.hidden = false;
+  }
+
+  function update() {
+    events.forEach(function (e) {
+      var h = $('ev' + e.id + 'h');
+      if (h) h.textContent = hintText(e);
+    });
+    summaryEl.textContent = '';
+    var sorted = sortedEvents();
+    if (!sorted.length) summaryEl.appendChild(el('li', { style: 'color:#667388' }, 'אין אירועים.'));
+    sorted.forEach(function (e) {
+      var li = el('li', complete(e) ? null : { 'class': 'bad' });
+      var txt = el('div');
+      txt.appendChild(el('div', { 'class': 'd' }, dayName(e.day)));
+      txt.appendChild(el('div', { 'class': 'a' }, complete(e) ? 'מצב שבת מופעל' + (nextDay(e) ? ' עד למחרת' : '') : 'חסרה שעה'));
+      li.appendChild(txt);
+      li.appendChild(el('span', { 'class': 't' }, complete(e) ? e.start + ' – ' + e.end : '--:--'));
+      summaryEl.appendChild(li);
+    });
+    var v = validate();
+    fillBox(errBox, v.errors);
+    fillBox(warnBox, v.warnings);
+    clearBtn.hidden = !events.length;
+    sendBtn.disabled = v.empty || v.errors.length > 0 || !chk.checked;
+  }
+
+  function buildPayload() {
+    return {
+      type: 'shabbat_elevator_schedule',
+      version: 2,
+      events: sortedEvents().map(function (e) {
+        return { day: e.day, start_time: e.start, end_time: e.end, ends_next_day: nextDay(e) };
+      })
+    };
+  }
+
+  function setStatus(msg, ok) { statusEl.textContent = msg; statusEl.className = ok ? 'ok' : 'bad'; }
+
+  function send() {
+    var v = validate();
+    if (v.empty || v.errors.length || !chk.checked) { update(); return; }
+    var json = JSON.stringify(buildPayload());
+    var bytes = new TextEncoder().encode(json).length;
+    if (bytes > MAX_BYTES) { setStatus('הנתונים גדולים מדי לשליחה (' + bytes + ' בתים). יש להקטין את מספר האירועים.', false); return; }
+
+    if (!inTelegram) {
+      try {
+        var url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+        var a = el('a', { href: url, download: 'shabbat_elevator_schedule.json' });
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        setStatus('קובץ בדיקה הורד למכשיר. לא נשלח כלום לבוט, לא נשמר דבר ולא בוצעה פעולה במעלית.', true);
+      } catch (err) { setStatus('ההורדה נכשלה: ' + err.message, false); }
+      return;
+    }
+    try {
+      sendBtn.disabled = true;
+      tg.sendData(json);
+      setStatus('הנתונים נשלחו לבוט וממתינים לאישור שלו. הם עדיין לא נשמרו ולא בוצעה פעולה במעלית.', true);
+    } catch (err) {
+      sendBtn.disabled = false;
+      setStatus('השליחה נכשלה: ' + err.message, false);
+    }
+  }
+
+  function askConfirm(msg, cb) {
+    if (inTelegram && tg.showConfirm && tg.isVersionAtLeast && tg.isVersionAtLeast('6.2')) tg.showConfirm(msg, cb);
+    else cb(window.confirm(msg));
+  }
+
+  $('addBtn').addEventListener('click', function () {
+    var last = events[events.length - 1];
+    events.push({ id: nextId++, day: last ? last.day : 'friday', start: '', end: '' });
+    touch(); renderList(); update();
+    var inputs = listEl.querySelectorAll('input[type=time]');
+    if (inputs.length > 1) inputs[inputs.length - 2].focus();
+  });
+  clearBtn.addEventListener('click', function () {
+    askConfirm('למחוק את כל האירועים?', function (ok) {
+      if (!ok) return;
+      events = []; touch(); renderList(); update();
+    });
+  });
+  chk.addEventListener('change', update);
+  sendBtn.addEventListener('click', send);
+
+  try {
+    if (tg) {
+      tg.ready(); tg.expand();
+      if (tg.setHeaderColor) tg.setHeaderColor('#0b244b');
+      if (tg.setBackgroundColor) tg.setBackgroundColor('#eef2f9');
+    }
+  } catch (err) { /* ממשיכים גם בלי טלגרם */ }
+
+  if (!inTelegram) { $('demo').hidden = false; sendBtn.textContent = 'הורדת JSON לבדיקה'; }
+
+  renderList();
+  update();
+})();
+</script>
+</body>
+</html>
